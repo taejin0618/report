@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA 종료 리포트 대시보드</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+    
+        .metric-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+            margin: 0 10px;
+            transition: transform 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        .metric-card h3 {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0 0;
+            color: #2c3e50;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .card h2 {
+            margin-top: 0;
+            color: #34495e;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+        .card h3 {
+            color: #34495e;
+            font-size: 1rem;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .progress-container {
+            margin-top: 20px;
+        }
+        .progress-bar {
+            background-color: #ecf0f1;
+            border-radius: 4px;
+            height: 20px;
+            overflow: hidden;
+        }
+        .progress {
+            background-color: #3498db;
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+        }
+        #testEnvironmentTable td {
+            font-size: 0.9rem;
+        }
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 10px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        .legend-label {
+            font-size: 0.9rem;
+        }
+        .environment-description {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        .jira-url-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .jira-url-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .jira-url-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>마이 데이터 캔버스 QA 종료 리포트</h1>
+        </header>
+
+        <section class="metrics">
+            <div class="metric-card">
+                <h3>총 결함 수</h3>
+                <p class="metric-value" id="totalDefects">0</p>
+            </div>
+            <div class="metric-card">
+                <h3>테스트 통과율</h3>
+                <p class="metric-value" id="testPassRate">0%</p>
+            </div>
+            <div class="metric-card">
+                <h3>테스트 진행률</h3>
+                <p class="metric-value" id="testProgressRate">0%</p>
+            </div>
+        </section>
+
+        <div class="dashboard">
+            <section class="card">
+                <h2>결함 심각도 현황</h2>
+                <canvas id="defectSeverityChart"></canvas>
+                <div id="defectSeverityLegend" class="chart-legend"></div>
+ 
+            </section>
+
+            <section class="card">
+                <h2>테스트 진행 현황</h2>
+                <h3>테스트 케이스 실행 요약</h3>
+                <p class="environment-description">
+                    아래 표는 모든 테스트 케이스의 실행 상태를 요약합니다. 'Total'은 전체 테스트 케이스의 수를 나타냅니다.
+                </p>
+                <table id="testProgressTable">
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>Total</th>
+                            <th>Pass</th>
+                            <th>Fail</th>
+                            <th>N/T</th>
+                            <th>제외</th>
+                            <th>진행률</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>합계</td>
+                            <td id="totalTests">0</td>
+                            <td>100</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td id="progressRate">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBar"></div>
+                    </div>
+                    <p id="progressText"></p>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>테스트 환경</h2>
+                <p class="environment-description">
+                    아래 표는 테스트에 사용된 주요 환경과 호환성을 검증한 추가 환경을 나타냅니다.
+                </p>
+                <table id="testEnvironmentTable">
+                    <thead>
+                        <tr>
+                            <th>플랫폼</th>
+                            <th>주요 테스트 환경</th>
+                            <th>호환성 검증 환경</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>모바일</td>
+                            <td>
+                                Android: 8.x - 13.x<br>
+                                iOS: 14.x / 16.x
+                            </td> 
+                            <td>
+                                Android: 4.x - 6.x<br>
+                                iOS: 11.x / 13.x
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>태블릿</td>
+                            <td>iPadOS: 14.x / 16.x</td>
+                            <td>iPadOS: 13.x</td>
+                        </tr>
+                        <tr>
+                            <td>PC</td>
+                            <td>
+                                Microsoft Edge<br>
+                                Google Chrome
+                            </td>
+                            <td>
+                                Apple Safari<br>
+                                Mozilla Firefox
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const defectSeverityData = {
+                labels: ['HIGHEST', 'HIGH', 'MEDIUM', 'LOW', 'LOWEST'],
+                datasets: [{
+                    data: [15, 2, 30, 20, 50],
+                    backgroundColor: [
+                        '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#95a5a6'
+                    ]
+                }]
+            };
+
+            function updateDefectSeverityChart() {
+                const total = defectSeverityData.datasets[0].data.reduce((a, b) => a + b, 0);
+                defectSeverityData.labels.unshift('TOTAL');
+                defectSeverityData.datasets[0].data.unshift(total);
+                defectSeverityData.datasets[0].backgroundColor.unshift('#3498db');
+
+                document.getElementById('totalDefects').textContent = total;
+
+                const defectSeverityCtx = document.getElementById('defectSeverityChart').getContext('2d');
+                new Chart(defectSeverityCtx, {
+                    type: 'bar',
+                    data: defectSeverityData,
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: '결함 심각도 분포'
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+
+                const legendContainer = document.getElementById('defectSeverityLegend');
+                legendContainer.innerHTML = '';
+                defectSeverityData.labels.forEach((label, index) => {
+                    const legendItem = document.createElement('div');
+                    legendItem.classList.add('legend-item');
+                    legendItem.innerHTML = `
+                        <span class="legend-color" style="background-color: ${defectSeverityData.datasets[0].backgroundColor[index]}"></span>
+                        <span class="legend-label">${label}: ${defectSeverityData.datasets[0].data[index]}</span>
+                    `;
+                    legendContainer.appendChild(legendItem);
+                });
+
+            }
+
+            function updateTestProgress() {
+                const table = document.getElementById('testProgressTable');
+                const cells = table.rows[1].cells;
+                const pass = parseInt(cells[2].textContent);
+                const fail = parseInt(cells[3].textContent);
+                const nt = parseInt(cells[4].textContent);
+                const excluded = parseInt(cells[5].textContent);
+                
+                const total = pass + fail + nt + excluded;
+                cells[1].textContent = total;
+                
+                const progressRate = total > 0 ? ((pass + fail + nt + excluded) / total) * 100 : 0;
+                cells[6].textContent = progressRate.toFixed(1) + '%';
+
+                const passRate = (pass + fail) > 0 ? (pass / (pass + fail)) * 100 : 0;
+
+                document.getElementById('testPassRate').textContent = passRate.toFixed(1) + '%';
+                document.getElementById('testProgressRate').textContent = progressRate.toFixed(1) + '%';
+                
+                const progressBar = document.getElementById('progressBar');
+                const progressText = document.getElementById('progressText');
+                
+                progressBar.style.width = `${progressRate}%`;
+                progressText.textContent = `진행률: ${progressRate.toFixed(1)}%`;
+            }
+
+            updateDefectSeverityChart();
+            updateTestProgress();
+        });
+    </script>
+</body>
+</html>
