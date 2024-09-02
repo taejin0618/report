@@ -14,6 +14,7 @@
             background-color: #f0f4f8;
             color: #333;
         }
+
         .container {
             max-width: 1250px;
             margin: 0 auto;
@@ -21,22 +22,26 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
         }
+
         header {
             grid-column: 1 / -1;
             text-align: center;
             margin-bottom: 15px;
         }
+
         h1 {
             color: #2c3e50;
             font-size: 2rem;
             margin: 0;
         }
+
         .metrics {
             grid-column: 1 / -1;
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
         }
+
         .metric-card {
             background-color: white;
             border-radius: 8px;
@@ -47,26 +52,31 @@
             margin: 0 5px;
             transition: transform 0.3s ease;
         }
+
         .metric-card:hover {
             transform: translateY(-3px);
         }
+
         .metric-card h3 {
             margin: 0;
             color: #7f8c8d;
             font-size: 1rem;
         }
+
         .metric-value {
             font-size: 1.8rem;
             font-weight: bold;
             margin: 5px 0 0;
             color: #2c3e50;
         }
+
         .card {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             padding: 15px;
         }
+
         .card h2 {
             margin-top: 0;
             color: #34495e;
@@ -74,72 +84,87 @@
             padding-bottom: 8px;
             font-size: 1.4rem;
         }
+
         .card h3 {
             color: #34495e;
             font-size: 1rem;
             margin-top: 10px;
             margin-bottom: 5px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 8px;
             font-size: 0.9rem;
         }
+
         th, td {
             text-align: left;
             padding: 8px;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #f2f2f2;
             color: #333;
         }
+
         .progress-container {
             margin-top: 12px;
         }
+
         .progress-bar {
             background-color: #ecf0f1;
             border-radius: 4px;
             height: 15px;
             overflow: hidden;
         }
+
         .progress {
             background-color: #3498db;
             height: 100%;
             transition: width 0.5s ease-in-out;
         }
+
         #testEnvironmentTable td {
             font-size: 0.8rem;
         }
+
         .chart-legend {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             margin-top: 15px;
         }
+
         .legend-item {
             display: flex;
             align-items: center;
             margin: 5px 10px;
         }
+
         .legend-color {
             width: 20px;
             height: 20px;
             margin-right: 8px;
             border-radius: 3px;
         }
+
         .legend-label {
             font-size: 1rem;
         }
+
         .environment-description {
             font-size: 0.9rem;
             color: #7f8c8d;
             margin-bottom: 8px;
         }
+
         #defectSeverityChart {
             height: 300px !important;
         }
+
         .total-defects {
             font-size: 1.2rem;
             font-weight: bold;
@@ -149,229 +174,241 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>마이 데이터 캔버스 QA 종료 리포트</h1>
-        </header>
+<div class="container">
+    <header>
+        <h1>마이 데이터 캔버스 - QA 종료 리포트</h1>
+    </header>
 
-        <div class="metrics">
-            <div class="metric-card">
-                <h3>총 결함 수</h3>
-                <p id="totalDefects" class="metric-value">0</p>
-            </div>
-            <div class="metric-card">
-                <h3>테스트 통과율</h3>
-                <p id="testPassRate" class="metric-value">0%</p>
-            </div>
-            <div class="metric-card">
-                <h3>테스트 진행률</h3>
-                <p id="testProgressRate" class="metric-value">0%</p>
-            </div>
+    <div class="metrics">
+        <div class="metric-card">
+            <h3>총 결함 수</h3>
+            <p id="totalDefects" class="metric-value">0</p>
         </div>
-
-        <div class="card">
-            <h2>결함 심각도 현황</h2>
-            <p class="total-defects">총 결함 수: <span id="chartTotalDefects">0</span></p>
-            <canvas id="defectSeverityChart"></canvas>
-            <div id="defectSeverityLegend" class="chart-legend"></div>
+        <div class="metric-card">
+            <h3>테스트 통과율</h3>
+            <p id="testPassRate" class="metric-value">0%</p>
         </div>
-
-        <div class="card">
-            <h2>테스트 진행 현황</h2>
-            <h3>테스트 케이스 실행 요약</h3>
-            <p class="environment-description">아래 표는 모든 테스트 케이스의 실행 상태를 요약합니다. 'Total'은 전체 테스트 케이스의 수를 나타냅니다.</p>
-            <table id="testProgressTable">
-                <tr>
-                    <th>구분</th>
-                    <th>Total</th>
-                    <th>Pass</th>
-                    <th>Fail</th>
-                    <th>N/T</th>
-                    <th>제외</th>
-                    <th>진행률</th>
-                </tr>
-                <tr>
-                    <td>합계</td>
-                    <td>0</td>
-                    <td>80</td>
-                    <td>10</td>
-                    <td>5</td>
-                    <td>5</td>
-                    <td>0%</td>
-                </tr>
-            </table>
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div id="progressBar" class="progress"></div>
-                </div>
-                <p id="progressText"></p>
+        <div class="metric-card">
+            <h3>테스트 진행률</h3>
+            <p id="testProgressRate" class="metric-value">0%</p>
+        </div>
+    </div>
+    <div class="card">
+        <h2>테스트 진행 현황</h2>
+        <h3>테스트 케이스 결과 요약</h3>
+        <p class="environment-description">아래 표는 모든 테스트 케이스의 실행 상태를 요약합니다. <br>
+            <br>테스트 종료 시점의 결과로 Fail 건 수정 후 변경 사항이 있을 수 있음</p>
+        <table id="testProgressTable">
+            <tr>
+                <th>구분</th>
+                <th>Total</th>
+                <th>Pass</th>
+                <th>Fail</th>
+                <th>N/T</th>
+                <th>제외</th>
+                <th>진행률</th>
+            </tr>
+            <tr>
+                <td>합계</td>
+                <td>0</td>
+                <td>452</td>
+                <td>2</td>
+                <td>47</td>
+                <td>31</td>
+                <td>0%</td>
+            </tr>
+        </table>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div id="progressBar" class="progress"></div>
             </div>
-        </div>
-
-        <div class="card">
-            <h2>테스트 환경</h2>
-            <p class="environment-description">아래 표는 테스트에 사용된 주요 환경과 호환성을 검증한 추가 환경을 나타냅니다.</p>
-            <table id="testEnvironmentTable">
-                <tr>
-                    <th>플랫폼</th>
-                    <th>주요 테스트 환경</th>
-                    <th>호환성 검증 환경</th>
-                </tr>
-                <tr>
-                    <td>모바일</td>
-                    <td>Android: 8.x - 13.x<br>iOS: 14.x / 16.x</td>
-                    <td>Android: 4.x - 6.x<br>iOS: 11.x / 13.x</td>
-                </tr>
-                <tr>
-                    <td>태블릿</td>
-                    <td>iPadOS: 14.x / 16.x</td>
-                    <td>iPadOS: 13.x</td>
-                </tr>
-                <tr>
-                    <td>PC</td>
-                    <td>Microsoft Edge<br>Google Chrome</td>
-                    <td>Apple Safari<br>Mozilla Firefox</td>
-                </tr>
-            </table>
+            <p id="progressText"></p>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const defectSeverityData = {
-                labels: ['HIGHEST', 'HIGH', 'MEDIUM', 'LOW', 'LOWEST'],
-                datasets: [{
-                    data: [15, 2, 30, 20, 50],
-                    backgroundColor: [
-                        '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#95a5a6'
-                    ]
-                }]
-            };
+    <div class="card">
+        <h2>결함 심각도 현황</h2>
+        <p class="total-defects">총 결함 수: <span id="chartTotalDefects">0</span></p>
+        <canvas id="defectSeverityChart"></canvas>
+        <div id="defectSeverityLegend" class="chart-legend"></div>
+    </div>
 
-            function updateDefectSeverityChart() {
-                const total = defectSeverityData.datasets[0].data.reduce((a, b) => a + b, 0);
-                document.getElementById('totalDefects').textContent = total;
-                document.getElementById('chartTotalDefects').textContent = total;
+    <div class="card" style="overflow: hidden;">
+        <h2>테스트 케이스 진행 결과</h2>
+        <p class="environment-description">개별 테스트케이스 진행 결과</p>
+        <table id="teatrail">
+            <tr>
+                <td><img src="report.png" style="max-width: 100%; height: auto;"></td>
+            </tr>
+        </table>
+    </div>
 
-                const defectSeverityCtx = document.getElementById('defectSeverityChart').getContext('2d');
-                new Chart(defectSeverityCtx, {
-                    type: 'bar',
-                    data: defectSeverityData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            title: {
-                                display: true,
-                                text: '결함 심각도 분포',
-                                font: {
-                                    size: 18,
-                                    weight: 'bold'
-                                },
-                                padding: {
-                                    top: 10,
-                                    bottom: 20
-                                }
+
+
+    <div class="card">
+        <h2>테스트 환경</h2>
+        <p class="environment-description">아래 표는 테스트에 사용된 주요 환경과 호환성을 검증한 추가 환경을 나타냅니다.</p>
+        <table id="testEnvironmentTable">
+            <tr>
+                <th>플랫폼</th>
+                <th>주요 테스트 환경</th>
+                <th>호환성 검증 환경</th>
+            </tr>
+            <tr>
+                <td>PC</td>
+                <td>Microsoft Edge<br>Google Chrome<br>Apple Safari</td>
+                <td>B2C 휴넷 Web<br>B2B 레벨업 연수원 Web</td>
+            </tr>
+            <tr>
+                <td>태블릿</td>
+                <td>Android<br>iOS</td>
+                <td>B2C 휴넷 APP<br>B2B 스마트러닝 APP</td>
+            </tr>
+            <tr>
+                <td>모바일</td>
+                <td>Android<br>iOS</td>
+                <td>B2C 휴넷 APP<br>B2B 스마트러닝 APP</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const defectSeverityData = {
+            labels: ['HIGHEST', 'HIGH', 'MEDIUM', 'LOW', 'LOWEST'],
+            datasets: [{
+                data: [11, 10, 31, 51, 0],
+                backgroundColor: [
+                    '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#95a5a6'
+                ]
+            }]
+        };
+
+        function updateDefectSeverityChart() {
+            const total = defectSeverityData.datasets[0].data.reduce((a, b) => a + b, 0);
+            document.getElementById('totalDefects').textContent = total;
+            document.getElementById('chartTotalDefects').textContent = total;
+
+            const defectSeverityCtx = document.getElementById('defectSeverityChart').getContext('2d');
+            new Chart(defectSeverityCtx, {
+                type: 'bar',
+                data: defectSeverityData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {display: false},
+                        title: {
+                            display: true,
+                            text: '결함 심각도 분포',
+                            font: {
+                                size: 18,
+                                weight: 'bold'
                             },
-                            tooltip: {
-                                bodyFont: {
-                                    size: 14
-                                },
-                                titleFont: {
-                                    size: 16
-                                }
-                            }
-                        },
-                        scales: {
-                            y: { 
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: '결함 수',
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    }
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12
-                                    },
-                                    callback: function(value) {
-                                        return value.toFixed(0);
-                                    }
-                                }
-                            },
-                            x: {
-                                title: {
-                                    display: true,
-                                    text: '심각도',
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    }
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 12
-                                    }
-                                }
-                            }
-                        },
-                        layout: {
                             padding: {
-                                left: 10,
-                                right: 10,
-                                top: 0,
-                                bottom: 10
+                                top: 10,
+                                bottom: 20
+                            }
+                        },
+                        tooltip: {
+                            bodyFont: {
+                                size: 14
+                            },
+                            titleFont: {
+                                size: 16
                             }
                         }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '결함 수',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                },
+                                callback: function (value) {
+                                    return value.toFixed(0);
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: '심각도',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 0,
+                            bottom: 10
+                        }
                     }
-                });
+                }
+            });
 
-                const legendContainer = document.getElementById('defectSeverityLegend');
-                legendContainer.innerHTML = '';
-                defectSeverityData.labels.forEach((label, index) => {
-                    const legendItem = document.createElement('div');
-                    legendItem.classList.add('legend-item');
-                    legendItem.innerHTML = `
+            const legendContainer = document.getElementById('defectSeverityLegend');
+            legendContainer.innerHTML = '';
+            defectSeverityData.labels.forEach((label, index) => {
+                const legendItem = document.createElement('div');
+                legendItem.classList.add('legend-item');
+                legendItem.innerHTML = `
                         <span class="legend-color" style="background-color: ${defectSeverityData.datasets[0].backgroundColor[index]}"></span>
                         <span class="legend-label">${label}: ${defectSeverityData.datasets[0].data[index]}</span>
                     `;
-                    legendContainer.appendChild(legendItem);
-                });
-            }
+                legendContainer.appendChild(legendItem);
+            });
+        }
 
-            function updateTestProgress() {
-                const table = document.getElementById('testProgressTable');
-                const cells = table.rows[1].cells;
-                const pass = parseInt(cells[2].textContent);
-                const fail = parseInt(cells[3].textContent);
-                const nt = parseInt(cells[4].textContent);
-                const excluded = parseInt(cells[5].textContent);
-                
-                const total = pass + fail + nt + excluded;
-                cells[1].textContent = total;
-                
-                const progressRate = total > 0 ? ((pass + fail + nt + excluded) / total) * 100 : 0;
-                cells[6].textContent = progressRate.toFixed(1) + '%';
+        function updateTestProgress() {
+            const table = document.getElementById('testProgressTable');
+            const cells = table.rows[1].cells;
+            const pass = parseInt(cells[2].textContent);
+            const fail = parseInt(cells[3].textContent);
+            const nt = parseInt(cells[4].textContent);
+            const excluded = parseInt(cells[5].textContent);
 
-                const passRate = (pass + fail) > 0 ? (pass / (pass + fail)) * 100 : 0;
+            const total = pass + fail + nt + excluded;
+            cells[1].textContent = total;
 
-                document.getElementById('testPassRate').textContent = passRate.toFixed(1) + '%';
-                document.getElementById('testProgressRate').textContent = progressRate.toFixed(1) + '%';
-                
-                const progressBar = document.getElementById('progressBar');
-                const progressText = document.getElementById('progressText');
-                
-                progressBar.style.width = `${progressRate}%`;
-                progressText.textContent = `진행률: ${progressRate.toFixed(1)}%`;
-            }
+            const progressRate = total > 0 ? ((pass + fail + nt + excluded) / total) * 100 : 0;
+            cells[6].textContent = progressRate.toFixed(1) + '%';
 
-            updateDefectSeverityChart();
-            updateTestProgress();
-        });
-    </script>
+            const passRate = (pass + fail) > 0 ? (pass / (pass + fail)) * 100 : 0;
+
+            document.getElementById('testPassRate').textContent = passRate.toFixed(1) + '%';
+            document.getElementById('testProgressRate').textContent = progressRate.toFixed(1) + '%';
+
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+
+            progressBar.style.width = `${progressRate}%`;
+            progressText.textContent = `진행률: ${progressRate.toFixed(1)}%`;
+        }
+
+        updateDefectSeverityChart();
+        updateTestProgress();
+    });
+</script>
 </body>
 </html>
